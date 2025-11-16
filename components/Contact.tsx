@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 
 const PinIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -20,10 +20,47 @@ const EmailIcon: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 const Contact: React.FC = () => {
+    const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+    const [errors, setErrors] = useState({ name: '', email: '', message: '' });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prevState => ({ ...prevState, [name]: value }));
+    };
+
+    const validateForm = (): boolean => {
+        const newErrors = { name: '', email: '', message: '' };
+        let isValid = true;
+
+        if (!formData.name.trim()) {
+            newErrors.name = 'O nome completo é obrigatório.';
+            isValid = false;
+        }
+
+        if (!formData.email.trim()) {
+            newErrors.email = 'O email é obrigatório.';
+            isValid = false;
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = 'O formato do email é inválido.';
+            isValid = false;
+        }
+
+        if (!formData.message.trim()) {
+            newErrors.message = 'A mensagem é obrigatória.';
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    };
     
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        alert('Obrigado pelo seu contato! Retornaremos em breve.');
+        if (validateForm()) {
+            alert('Obrigado pelo seu contato! Retornaremos em breve.');
+            setFormData({ name: '', email: '', message: '' });
+            setErrors({ name: '', email: '', message: '' });
+        }
     };
 
   return (
@@ -37,18 +74,41 @@ const Contact: React.FC = () => {
 
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-20">
             <div className="lg:w-1/2 bg-gray-50 p-8 rounded-lg">
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
-                        <input type="text" id="name" name="name" required className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500 transition"/>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            value={formData.name}
+                            onChange={handleChange}
+                            className={`w-full px-4 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-amber-500 focus:border-amber-500 transition`}
+                        />
+                        {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                     </div>
                      <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" id="email" name="email" required className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500 transition"/>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            value={formData.email}
+                            onChange={handleChange}
+                            className={`w-full px-4 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-amber-500 focus:border-amber-500 transition`}
+                        />
+                         {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                     </div>
                      <div>
                         <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">Sua Mensagem</label>
-                        <textarea id="message" name="message" rows={5} required className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500 transition"></textarea>
+                        <textarea 
+                            id="message" 
+                            name="message" 
+                            rows={5} 
+                            value={formData.message}
+                            onChange={handleChange}
+                            className={`w-full px-4 py-2 border ${errors.message ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-amber-500 focus:border-amber-500 transition`}></textarea>
+                         {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
                     </div>
                     <div>
                         <button type="submit" className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-md transition duration-300 shadow-md">

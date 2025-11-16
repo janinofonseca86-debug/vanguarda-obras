@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const BuildingIcon: React.FC<{ className: string }> = ({ className }) => (
@@ -26,12 +25,19 @@ const LinkedInIcon: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 const Footer: React.FC = () => {
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, href: string) => {
+    e.preventDefault();
+    document.querySelector(href)?.scrollIntoView({
+        behavior: 'smooth'
+    });
+  };
+
   return (
     <footer className="bg-slate-900 text-gray-300">
       <div className="container mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2 lg:col-span-1">
-             <a href="#inicio" className="flex items-center gap-2 mb-4">
+             <a href="#inicio" onClick={(e) => handleScroll(e, '#inicio')} className="flex items-center gap-2 mb-4 cursor-pointer">
                 <BuildingIcon className="w-8 h-8 text-amber-500" />
                 <span className="text-2xl font-bold text-white">Vanguarda</span>
             </a>
@@ -41,10 +47,10 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="font-semibold text-white mb-4">Links Rápidos</h4>
             <ul className="space-y-2">
-              <li><a href="#servicos" className="hover:text-amber-400 transition-colors">Serviços</a></li>
-              <li><a href="#projetos" className="hover:text-amber-400 transition-colors">Projetos</a></li>
-              <li><a href="#sobre" className="hover:text-amber-400 transition-colors">Sobre Nós</a></li>
-              <li><a href="#contato" className="hover:text-amber-400 transition-colors">Contato</a></li>
+              <li><a href="#servicos" onClick={(e) => handleScroll(e, '#servicos')} className="hover:text-amber-400 transition-colors cursor-pointer">Serviços</a></li>
+              <li><a href="#projetos" onClick={(e) => handleScroll(e, '#projetos')} className="hover:text-amber-400 transition-colors cursor-pointer">Projetos</a></li>
+              <li><a href="#sobre" onClick={(e) => handleScroll(e, '#sobre')} className="hover:text-amber-400 transition-colors cursor-pointer">Sobre Nós</a></li>
+              <li><a href="#contato" onClick={(e) => handleScroll(e, '#contato')} className="hover:text-amber-400 transition-colors cursor-pointer">Contato</a></li>
             </ul>
           </div>
 

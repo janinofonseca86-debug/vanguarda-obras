@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const ResidentialIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -24,11 +24,16 @@ interface ServiceCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
+  isVisible: boolean;
+  index: number;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description }) => (
-  <div className="bg-white p-8 rounded-lg shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
-    <div className="inline-block p-4 bg-amber-100 text-amber-500 rounded-full mb-4">
+const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, isVisible, index }) => (
+  <div 
+    className={`bg-white p-8 rounded-lg shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+    style={{ transitionDelay: `${index * 150}ms` }}
+  >
+    <div className={`inline-block p-4 bg-amber-100 text-amber-500 rounded-full mb-4 ${isVisible ? 'animate-bounce-in' : 'opacity-0'}`} style={{ animationDelay: `${index * 150 + 200}ms` }}>
       {icon}
     </div>
     <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
@@ -54,9 +59,36 @@ const Services: React.FC = () => {
             description: 'Modernizamos e revitalizamos seu espaço, seja residencial ou comercial, com soluções criativas e acabamento impecável.'
         }
     ];
+    
+    const [isVisible, setIsVisible] = useState(false);
+    const sectionRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    setIsVisible(true);
+                    if(sectionRef.current) {
+                        observer.unobserve(sectionRef.current);
+                    }
+                }
+            },
+            { threshold: 0.2 }
+        );
+
+        if (sectionRef.current) {
+            observer.observe(sectionRef.current);
+        }
+
+        return () => {
+            if (sectionRef.current) {
+                observer.unobserve(sectionRef.current);
+            }
+        };
+    }, []);
 
   return (
-    <section id="servicos" className="py-20 bg-gray-100">
+    <section id="servicos" className="py-20 bg-gray-100" ref={sectionRef}>
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Nossos Serviços</h2>
@@ -65,7 +97,7 @@ const Services: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {services.map((service, index) => (
-                <ServiceCard key={index} {...service} />
+                <ServiceCard key={index} {...service} isVisible={isVisible} index={index} />
             ))}
         </div>
       </div>

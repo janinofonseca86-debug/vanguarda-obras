@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface ProjectCardProps {
@@ -9,7 +8,7 @@ interface ProjectCardProps {
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ imageUrl, title, category }) => (
   <div className="group relative overflow-hidden rounded-lg shadow-lg">
-    <img src={imageUrl} alt={title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"/>
+    <img src={imageUrl} alt={title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"/>
     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
     <div className="absolute inset-0 flex flex-col justify-end p-6 text-white transform translate-y-1/4 group-hover:translate-y-0 transition-transform duration-500">
       <h3 className="text-2xl font-bold">{title}</h3>
@@ -50,6 +49,21 @@ const Projects: React.FC = () => {
       imageUrl: 'https://picsum.photos/seed/industrial-plant/600/400',
       title: 'Centro de Logística',
       category: 'Construção Industrial'
+    },
+    {
+      imageUrl: 'https://picsum.photos/seed/beach-house/600/400',
+      title: 'Casa de Praia Itamambuca',
+      category: 'Construção Residencial'
+    },
+    {
+      imageUrl: 'https://picsum.photos/seed/modern-loft/600/400',
+      title: 'Loft Industrial',
+      category: 'Reforma'
+    },
+    {
+      imageUrl: 'https://picsum.photos/seed/community-center/600/400',
+      title: 'Centro Comunitário',
+      category: 'Edifício Institucional'
     },
   ];
 
