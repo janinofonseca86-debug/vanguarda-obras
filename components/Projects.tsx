@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface ProjectCardProps {
   imageUrl: string;
@@ -6,16 +6,43 @@ interface ProjectCardProps {
   category: string;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ imageUrl, title, category }) => (
-  <div className="group relative overflow-hidden rounded-lg shadow-lg">
-    <img src={imageUrl} alt={title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"/>
-    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-    <div className="absolute inset-0 flex flex-col justify-end p-6 text-white transform translate-y-1/4 group-hover:translate-y-0 transition-transform duration-500">
-      <h3 className="text-2xl font-bold">{title}</h3>
-      <p className="text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300">{category}</p>
+const ProjectCard: React.FC<ProjectCardProps> = ({ imageUrl, title, category }) => {
+  const [transform, setTransform] = useState('perspective(1000px) rotateX(0deg) rotateY(0deg)');
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - left;
+    const y = e.clientY - top;
+    
+    const rotateY = (x / width - 0.5) * 15; // Controla a intensidade da rotação horizontal
+    const rotateX = -(y / height - 0.5) * 15; // Controla a intensidade da rotação vertical
+    
+    setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`);
+  };
+
+  const handleMouseLeave = () => {
+    setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg)');
+  };
+
+  return (
+    <div 
+      className="group relative overflow-hidden rounded-lg shadow-lg"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transform: transform,
+        transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      }}
+    >
+      <img src={imageUrl} alt={title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"/>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+      <div className="absolute inset-0 flex flex-col justify-end p-6 text-white transform translate-y-1/4 group-hover:translate-y-0 transition-transform duration-500">
+        <h3 className="text-2xl font-bold">{title}</h3>
+        <p className="text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300">{category}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 
 const Projects: React.FC = () => {
