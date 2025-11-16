@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const BuildingIcon: React.FC<{ className: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -24,6 +24,17 @@ const CloseIcon: React.FC<{ className: string }> = ({ className }) => (
 const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    useEffect(() => {
+        if (isMenuOpen) {
+            document.body.classList.add('overflow-hidden');
+        } else {
+            document.body.classList.remove('overflow-hidden');
+        }
+        return () => {
+            document.body.classList.remove('overflow-hidden');
+        };
+    }, [isMenuOpen]);
+
     const navLinks = [
         { href: '#inicio', label: 'Início' },
         { href: '#servicos', label: 'Serviços' },
@@ -41,39 +52,64 @@ const Header: React.FC = () => {
     };
 
     return (
-        <header className="bg-white/90 backdrop-blur-sm sticky top-0 z-50 shadow-md">
-            <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-                <a href="#inicio" onClick={(e) => handleScroll(e, '#inicio')} className="flex items-center gap-2">
-                    <BuildingIcon className="w-8 h-8 text-amber-500" />
-                    <span className="text-2xl font-bold text-gray-800">Vanguarda</span>
-                </a>
+        <>
+            <header className="bg-white/90 backdrop-blur-sm sticky top-0 z-30 shadow-md">
+                <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+                    <a href="#inicio" onClick={(e) => handleScroll(e, '#inicio')} className="flex items-center gap-2">
+                        <BuildingIcon className="w-8 h-8 text-amber-500" />
+                        <span className="text-2xl font-bold text-gray-800">Vanguarda</span>
+                    </a>
 
-                <nav className="hidden md:flex items-center space-x-8">
-                    {navLinks.map((link) => (
-                        <a key={link.href} href={link.href} onClick={(e) => handleScroll(e, link.href)} className="text-gray-600 hover:text-amber-500 transition-colors duration-300 font-medium">
-                            {link.label}
-                        </a>
-                    ))}
-                </nav>
+                    <nav className="hidden md:flex items-center space-x-8">
+                        {navLinks.map((link) => (
+                            <a key={link.href} href={link.href} onClick={(e) => handleScroll(e, link.href)} className="text-gray-600 hover:text-amber-500 transition-colors duration-300 font-medium">
+                                {link.label}
+                            </a>
+                        ))}
+                    </nav>
 
-                <div className="md:hidden">
-                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-800 focus:outline-none">
-                        {isMenuOpen ? <CloseIcon className="w-7 h-7" /> : <MenuIcon className="w-7 h-7" />}
+                    <div className="md:hidden">
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-800 focus:outline-none" aria-label="Abrir menu">
+                            <MenuIcon className="w-7 h-7" />
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            {/* Mobile Menu Overlay */}
+            <div
+                className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 ease-in-out md:hidden ${isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                onClick={() => setIsMenuOpen(false)}
+                aria-hidden="true"
+            ></div>
+
+            {/* Mobile Menu Drawer */}
+            <aside
+                className={`fixed top-0 right-0 h-full w-4/5 max-w-xs bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="mobile-menu-title"
+            >
+                <div className="flex justify-between items-center p-5 border-b">
+                    <h2 id="mobile-menu-title" className="text-xl font-bold text-gray-800">Menu</h2>
+                    <button onClick={() => setIsMenuOpen(false)} className="text-gray-600 hover:text-gray-900" aria-label="Fechar menu">
+                        <CloseIcon className="w-6 h-6" />
                     </button>
                 </div>
-            </div>
-
-            {/* Mobile Menu */}
-            <div className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'} bg-white absolute w-full shadow-lg`}>
-                <nav className="flex flex-col items-center py-4">
+                <nav className="flex flex-col p-5">
                     {navLinks.map((link) => (
-                        <a key={link.href} href={link.href} onClick={(e) => handleScroll(e, link.href)} className="py-3 text-gray-700 hover:text-amber-500 hover:bg-gray-100 w-full text-center transition-colors duration-300">
+                        <a
+                            key={link.href}
+                            href={link.href}
+                            onClick={(e) => handleScroll(e, link.href)}
+                            className="py-3 px-3 text-lg text-gray-700 rounded-md hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
+                        >
                             {link.label}
                         </a>
                     ))}
                 </nav>
-            </div>
-        </header>
+            </aside>
+        </>
     );
 };
 

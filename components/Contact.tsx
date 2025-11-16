@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 const PinIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -19,39 +18,53 @@ const EmailIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
+type FormFields = 'name' | 'email' | 'message';
+
 const Contact: React.FC = () => {
     const [formData, setFormData] = useState({ name: '', email: '', message: '' });
     const [errors, setErrors] = useState({ name: '', email: '', message: '' });
 
+    const validateField = (name: FormFields, value: string): string => {
+        switch (name) {
+            case 'name':
+                if (!value.trim()) return 'O nome completo é obrigatório.';
+                return '';
+            case 'email':
+                if (!value.trim()) return 'O email é obrigatório.';
+                if (!/\S+@\S+\.\S+/.test(value)) return 'O formato do email é inválido.';
+                return '';
+            case 'message':
+                if (!value.trim()) return 'A mensagem é obrigatória.';
+                return '';
+            default:
+                return '';
+        }
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+        const { name, value } = e.target as { name: FormFields, value: string };
         setFormData(prevState => ({ ...prevState, [name]: value }));
+        
+        // Provide real-time feedback by re-validating if there was already an error
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
+        }
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target as { name: FormFields, value: string };
+        const error = validateField(name, value);
+        setErrors(prev => ({ ...prev, [name]: error }));
     };
 
     const validateForm = (): boolean => {
-        const newErrors = { name: '', email: '', message: '' };
-        let isValid = true;
-
-        if (!formData.name.trim()) {
-            newErrors.name = 'O nome completo é obrigatório.';
-            isValid = false;
-        }
-
-        if (!formData.email.trim()) {
-            newErrors.email = 'O email é obrigatório.';
-            isValid = false;
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'O formato do email é inválido.';
-            isValid = false;
-        }
-
-        if (!formData.message.trim()) {
-            newErrors.message = 'A mensagem é obrigatória.';
-            isValid = false;
-        }
-
+        const newErrors = {
+            name: validateField('name', formData.name),
+            email: validateField('email', formData.email),
+            message: validateField('message', formData.message)
+        };
         setErrors(newErrors);
-        return isValid;
+        return Object.values(newErrors).every(error => error === '');
     };
     
     const handleSubmit = (e: React.FormEvent) => {
@@ -83,9 +96,12 @@ const Contact: React.FC = () => {
                             name="name" 
                             value={formData.name}
                             onChange={handleChange}
+                            onBlur={handleBlur}
+                            aria-invalid={!!errors.name}
+                            aria-describedby="name-error"
                             className={`w-full px-4 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-amber-500 focus:border-amber-500 transition`}
                         />
-                        {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                        {errors.name && <p id="name-error" className="text-red-500 text-sm mt-1">{errors.name}</p>}
                     </div>
                      <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -95,9 +111,12 @@ const Contact: React.FC = () => {
                             name="email" 
                             value={formData.email}
                             onChange={handleChange}
+                            onBlur={handleBlur}
+                            aria-invalid={!!errors.email}
+                            aria-describedby="email-error"
                             className={`w-full px-4 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-amber-500 focus:border-amber-500 transition`}
                         />
-                         {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                         {errors.email && <p id="email-error" className="text-red-500 text-sm mt-1">{errors.email}</p>}
                     </div>
                      <div>
                         <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">Sua Mensagem</label>
@@ -107,8 +126,11 @@ const Contact: React.FC = () => {
                             rows={5} 
                             value={formData.message}
                             onChange={handleChange}
+                            onBlur={handleBlur}
+                            aria-invalid={!!errors.message}
+                            aria-describedby="message-error"
                             className={`w-full px-4 py-2 border ${errors.message ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-amber-500 focus:border-amber-500 transition`}></textarea>
-                         {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
+                         {errors.message && <p id="message-error" className="text-red-500 text-sm mt-1">{errors.message}</p>}
                     </div>
                     <div>
                         <button type="submit" className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-md transition duration-300 shadow-md">
